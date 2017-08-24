@@ -105,6 +105,88 @@ int GetNumOfColumns(char *filename)
 }									   }
 
 
+/**
+ * This function is to used to load the data from file to memory
+ * memory, So that we will read data from this instead of file IO 
+ * operation every time(expensive operation)
+ */
+string** LoadTheDataFile(char *filename, int noofrows, int noofcolumns)
+{
+    ifstream file;
+    file.open(filename);
+    string temp;
+    file >> temp;
+    try
+    {
+        string **data = new string*[noofrows];
+	for(int i=0; i<noofrows; i++)
+	{
+            data[i] = new string[noofcolumns];
+	}
+
+        for(int i=0; i<noofrows; i++)
+	{
+            file >> temp;
+	    for(int j=0; j<noofcolumns; j++)
+	    {
+                if(temp.find(';') != -1)
+		{
+                    data[i][j] = temp.substr(0, temp.find(';'));
+		    temp = temp.substr(temp.find(';')+1);
+		}
+		else
+		{
+		    data[i][j] = temp;
+	        }
+	    }
+	}
+																					        file.close();
+	return data;
+    }
+    catch (const std::bad_alloc& e)
+    {
+         cout << "Allocation Failed: " << e.what() << endl;
+    }
+}
+
+
+/**
+ * Write a the data to the file
+ * Updates the header with the number of rows and appends the data to the file
+ */
+void WriteData(char *filename, string row, int rows)
+{
+    ifstream file;
+    file.open(filename);
+    string header;
+    file >> header;
+    ostringstream stream;
+    string temp = "";
+    temp.append(header.substr(0, header.find(';')+1));
+    stream << rows;
+    temp.append(stream.str());
+    header = header.substr(header.find(';')+1);
+    header = header.substr(header.find(';'));
+    temp.append(header);
+    header = temp;
+    ofstream newfile;
+    newfile.open("EmpData/temp");
+    newfile << header << endl;
+    while(!file.eof())
+    {
+        temp = "";
+	file >> temp;
+	newfile << temp << endl;
+    }
+    newfile << row;
+    file.close();
+    newfile.close();
+    remove(filename);
+    rename("EmpData/temp", filename);
+}
+
+
+
 
 /**
  * Driver Program to test the functionality
