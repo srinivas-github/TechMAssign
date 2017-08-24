@@ -185,6 +185,83 @@ void WriteData(char *filename, string row, int rows)
     rename("EmpData/temp", filename);
 }
 
+/**
+ * This method is used to get the column number to search data
+ */
+int FindColumnNumber(char *filename, string column)
+{
+    ifstream file;
+    file.open(filename);
+    string temp;
+    file >> temp;
+    temp = temp.substr(temp.find(';')+1);
+    temp = temp.substr(temp.find(';')+1);
+    temp = temp.substr(temp.find(';')+1);
+    string columnname = "";
+    int counter = 0;
+    while(column != columnname)
+    {
+        counter++;
+	columnname = temp.substr(0,temp.find(','));
+	columnname = columnname.substr(0, columnname.find('-'));
+	temp = temp.substr(temp.find(',')+1);
+    }
+    return counter;
+}
+
+
+/**
+ * Search for the record with the given search data
+*/
+void SearchData(string **data, int column, string value, int rows, int columns)
+{
+    bool found = false;
+    for(int i=0; i<rows; i++)
+    {
+        string temp = data[i][column];
+        if(temp == value)
+        {
+	    for(int j=0; j<columns; j++)
+	    {
+	        cout << data[i][j] << " ";
+	        found = true;
+	    }
+	    if(found)
+	        cout << endl;
+	}
+    }
+
+    if(!found)
+    {
+        cout << "No rows found." << endl;
+    }
+}
+
+
+/**
+ * Extended Search
+ */
+void ExtendedSearch(string **data, int column1, string value1, int column2, string value2, int rows, int columns)
+{
+    bool found = false;
+    for(int i=0; i<rows; i++)
+    {
+       if((data[i][column1] == value1) && (data[i][column2] == value2))
+       {
+           for(int j=0; j<columns; j++)
+           {
+	       cout << data[i][j] << " ";
+	       found = true;
+	   }
+	   if(found)
+	        cout << endl;
+	}
+    }
+    if(!found)
+    {
+        cout << "No rows found." << endl;
+    }
+}
 
 
 
@@ -193,6 +270,139 @@ void WriteData(char *filename, string row, int rows)
 */
 int main()
 {
+    string tablename = "";
+    bool cache = false;
+    string **data;
+    int noofrows=0;
+    int noofcolumns=0;
+    char *filename;
+    int exit = 0;
+
+    while(1)
+    {
+        cout << "Enter The Command: ";
+	string command;
+	getline(cin, command);
+	string operations = command.substr(0, command.find(' '));
+	int operation;
+	if(operations == "READ")
+	{
+            operation = 0;
+        }
+        else if(operations == "WRITE")
+	{
+            tablename = "";
+            operation = 1;
+        }
+        else if(operations == "SEARCH")
+        {
+	    operation = 2;
+	}
+	else if(operations == "EXTSEARCH")
+	{
+	    operation = 3;
+	}
+	else if(operations == "EXIT" || operations == "QUIT" || operations == "exit" || operations == "quit")
+	{
+	    operation = 4;
+	}
+	else
+	{
+	    operation = -1;
+	}
+	
+	/**
+	 * Get the table info (.i.e., employee or department
+	 */
+	command = command.substr(command.find(' ')+1);
+	if(tablename == command.substr(0, command.find(' ')))
+	{
+	   //Make the cache true, so that will get the data from memory
+	   cache = true;
+	}
+	else
+	{
+	    //clean the data in memory and make cache is false
+	    tablename = command.substr(0, command.find(' '));
+	    string _filename = FindTheDataFile(tablename);
+	    filename = new char[_filename.length()+1];
+	    strcpy(filename, _filename.c_str());
+	
+	    if(noofrows != 0)
+	        CleanupData(data, noofrows);
+
+	    noofrows = GetNumOfRows(filename);
+	    noofcolumns = GetNumOfColumns(filename); 
+	    cache = false;
+	}
+        command = command.substr(command.find(' ')+1);
+
+        switch(operation)
+	{
+        case 0:  //Read operation
+	    if(!cache)
+	    {
+	        if(noofrows != 0)
+	            data = LoadTheDataFile(filename, noofrows, noofcolumns);
+	    }
+	
+	    for(int i=0; i<noofrows; i++)
+	    {
+	        for(int j=0; j<noofcolumns; j++)
+		{
+		    cout << data[i][j] << " ";
+		}
+		cout << endl;
+	    }
+	    break;
+	case 1: //write operation
+	    noofrows++;
+	    WriteData(filename, command, noofrows);
+	    if(noofrows != 0)
+	        data = LoadTheDataFile(filename, noofrows, noofcolumns);
+	    break;
+	case 2:  //search operation
+	    if(!cache)
+	    {
+	        data = LoadTheDataFile(filename, noofrows, noofcolumns);
+	    }
+	 
+	    {
+	        int tempNo = FindColumnNumber(filename, command.substr(0, command.find(' ')));
+	        command = command.substr(command.find(' ')+1);
+	        SearchData(data, tempNo-1, command, noofrows, noofcolumns);
+	    }
+	    
+	    break;
+	case 3: // Extended Search
+	    if(!cache)
+	    {
+	         data = LoadTheDataFile(filename, noofrows, noofcolumns);
+	    }
+
+	    {
+	       int tempNo1 = FindColumnNumber(filename, command.substr(0, command.find(' ')));
+	       command = command.substr(command.find(' ')+1);
+	       string value1 = command.substr(0, command.find(' '));
+	       command = command.substr(command.find(' ')+1);
+	       int tempNo2 = FindColumnNumber(filename, command.substr(0, command.find(' ')));
+	       command = command.substr(command.find(' ')+1);
+	       ExtendedSearch(data, tempNo1-1, value1, tempNo2-1, command, noofrows, noofcolumns);
+	    }
+	    break;
+	case 4:
+	    exit = 1;
+	    break;
+	default:
+	    cout << "Invalid command..." << endl;
+	    break;
+        } //end of switch
+  
+        if(exit == 1)
+        {
+             return 0;
+        }
+    }//end of while
     
     return 0;
 }
