@@ -13,6 +13,6 @@
 								      
 ### Compile and Run the program by using the belwo commands
    ```
-   $ g++ EmployeeOps.cpp -o EmployeeOps
-   $ ./EmployeeOPs
+   $ g++ EmployeeOPs.cpp -o EmployeeOPs
+   $ ./EmployeeOPs.cpp
    ```

@@ -38,8 +38,6 @@ string FindTheDataFile(string tablename)
     return filename;
 }
 
-
-
 /**
  * Delete the data to store the other table data.
  * For example, if we read "employee" first and
