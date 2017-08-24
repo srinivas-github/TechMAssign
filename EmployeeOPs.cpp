@@ -1,3 +1,45 @@
+#include <iostream>
+#include <fstream>
+#include <cstring>
+#include <sstream>
+#include <string>
+#include <dirent.h>
+
+/**
+ * Get the file name(employee / department)
+ * from the given command. The text files are stored at
+ * location EmpData/employee, EmpData/department
+ *
+ */
+string FindTheDataFile(string tablename)
+{
+    DIR *dir;
+    struct dirent *ent;
+    dir = opendir("EmpData");
+    ifstream file;
+    string filename;
+    while ((ent = readdir(dir)) != NULL) 
+    {
+        filename = "EmpData/";
+        filename.append(ent->d_name);
+        file.open(filename.c_str());
+        string header;
+        file >> header;
+        header = header.substr(0, header.find(';'));
+        header = header.substr(header.find(':')+1);
+        if(header == tablename)
+	{
+	    file.close();
+	    break;
+	}
+	file.close();
+    }
+    closedir (dir);
+    return filename;
+}
+
+
+
 /**
  * Delete the data to store the other table data.
  * For example, if we read "employee" first and
