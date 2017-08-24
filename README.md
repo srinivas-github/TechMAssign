@@ -12,3 +12,7 @@
     4. EXTSearch 
 								      
 ### Compile and Run the program by using the belwo commands
+   ```
+   $ g++ EmployeeOps.cpp -o EmployeeOps
+   $ ./EmployeeOPs
+   ```
