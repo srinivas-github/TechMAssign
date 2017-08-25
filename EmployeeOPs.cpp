@@ -5,6 +5,7 @@
 #include <string>
 #include <dirent.h>
 
+using namespace std;
 /**
  * Get the file name(employee / department)
  * from the given command. The text files are stored at
@@ -13,28 +14,49 @@
  */
 string FindTheDataFile(string tablename)
 {
+   cout<<"FindTheDataFile: tablename: "<<tablename<<"\n";
+
     DIR *dir;
     struct dirent *ent;
-    dir = opendir("EmpData");
+    //dir = opendir("./EmpData");
+    dir = opendir("/home/vagrant/TMAssignment/EmpData");
     ifstream file;
     string filename;
     while ((ent = readdir(dir)) != NULL) 
     {
-        filename = "EmpData/";
-        filename.append(ent->d_name);
-        file.open(filename.c_str());
-        string header;
-        file >> header;
-        header = header.substr(0, header.find(';'));
-        header = header.substr(header.find(':')+1);
-        if(header == tablename)
-	{
+        //filename = "./EmpData/";
+        filename = "/home/vagrant/TMAssignment/EmpData/";
+        if ( !strcmp(ent->d_name, ".") || !strcmp(ent->d_name, "..") || !strcmp(ent->d_name, " " ))
+        {   
+
+        }
+        else
+        {
+             filename.append(ent->d_name);
+        }
+    
+       //cout<<"FileName after append: "<<filename<<"\n";
+       
+       size_t found = filename.find(".txt");
+       if ( found != string::npos)
+       {
+            //cout<<"Opening file... "<<filename<<"\n";
+            file.open(filename.c_str());
+            string header;
+            file >> header;
+            header = header.substr(0, header.find(';'));
+            header = header.substr(header.find(':')+1);
+            if(header == tablename)
+	    {
+	        file.close();
+	        break;
+	    }
 	    file.close();
-	    break;
-	}
-	file.close();
+       }
+    
     }
     closedir (dir);
+    //cout<<"Returning file name: "<<filename<<"\n";
     return filename;
 }
 
@@ -91,16 +113,21 @@ int GetNumOfColumns(char *filename)
     temp = temp.substr(temp.find(';')+1);
     temp = temp.substr(temp.find(';')+1);
     c = temp.substr(0, temp.find(';'));
+
     int noofcolumns;
+
     noofcolumns = c[0]-'0';
+
     for(int i=1;i<c.length();i++)
     {
          noofcolumns *= 10;
          noofcolumns += c[i]-'0';
     }
+
     file.close();
+
     return noofcolumns;
-}									   }
+}
 
 
 /**
@@ -325,6 +352,8 @@ int main()
 	    string _filename = FindTheDataFile(tablename);
 	    filename = new char[_filename.length()+1];
 	    strcpy(filename, _filename.c_str());
+
+            //cout<<"The Name of file is: "<<filename<<"\n";
 	
 	    if(noofrows != 0)
 	        CleanupData(data, noofrows);
@@ -404,4 +433,5 @@ int main()
     
     return 0;
 }
+
 
