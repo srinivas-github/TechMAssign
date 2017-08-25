@@ -18,14 +18,14 @@ string FindTheDataFile(string tablename)
 
     DIR *dir;
     struct dirent *ent;
-    //dir = opendir("./EmpData");
-    dir = opendir("/home/vagrant/TMAssignment/EmpData");
+    dir = opendir("./EmpData");
+    //dir = opendir("/home/vagrant/TMAssignment/EmpData");
     ifstream file;
     string filename;
     while ((ent = readdir(dir)) != NULL) 
     {
-        //filename = "./EmpData/";
-        filename = "/home/vagrant/TMAssignment/EmpData/";
+        filename = "./EmpData/";
+        //filename = "/home/vagrant/TMAssignment/EmpData/";
         if ( !strcmp(ent->d_name, ".") || !strcmp(ent->d_name, "..") || !strcmp(ent->d_name, " " ))
         {   
 
@@ -195,7 +195,7 @@ void WriteData(char *filename, string row, int rows)
     temp.append(header);
     header = temp;
     ofstream newfile;
-    newfile.open("EmpData/temp");
+    newfile.open("./EmpData/temp");
     newfile << header << endl;
     while(!file.eof())
     {
@@ -207,7 +207,7 @@ void WriteData(char *filename, string row, int rows)
     file.close();
     newfile.close();
     remove(filename);
-    rename("EmpData/temp", filename);
+    rename("./EmpData/temp", filename);
 }
 
 /**
