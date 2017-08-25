@@ -14,5 +14,9 @@
 ### Compile and Run the program by using the belwo commands
    ```
    $ g++ EmployeeOPs.cpp -o EmployeeOPs
-   $ ./EmployeeOPs.cpp
+   $ ./EmployeeOPs
+   Enter The Command: READ Employee
+   Enter The Command: WRITE Employee 1060;AAAA;34000;7
+   Enter The Command: SEARCH Employee EmpId 1060   
+
    ```
